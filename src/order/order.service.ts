@@ -34,6 +34,7 @@ import { randomUUID } from 'crypto';
 import { NotificationService } from 'src/notification/notification.service';
 import { Role } from 'src/common/enums/role.enum';
 import { NotificationType } from 'src/common/enums/notificationType.enum';
+import { OrderType } from '@prisma/client';
 
 @Injectable()
 export class OrderService {
@@ -441,7 +442,8 @@ export class OrderService {
         shippingAddress: createOrderDto.shippingAddress ? createOrderDto.shippingAddress : null,
         order_details: {
           create: orderDetailsData
-        }
+        },
+        orderType: createOrderDto.orderType ?? OrderType.POS
       },
       include: {
         order_details: {
