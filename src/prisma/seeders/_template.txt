@@ -1,0 +1,26 @@
+import { Logger } from '@nestjs/common';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+export async function seedXXX() {
+    Logger.log('🪄 Seeding XXX...');
+
+    // 1. CHECK TỒN TẠI
+    const count = await prisma.xxx.count();
+    if (count > 0) {
+        Logger.log('⚠️ XXX already exist → Skip');
+        return prisma.xxx.findMany();
+    }
+
+    // 2. DATA
+    const data = [
+        // { ... },
+    ];
+
+    // 3.  CREATE
+    logic await prisma.xxx ...
+
+    Logger.log('✅ Seeded XXX');
+    return prisma.xxx.findMany();
+}
