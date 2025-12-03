@@ -106,5 +106,16 @@
   },
   "prisma": {
     "seed": "node prisma/dist/seed.js"
+  },
+  "pnpm": {
+    "ignoredBuiltDependencies": [
+      "@nestjs/core",
+      "unrs-resolver"
+    ],
+    "onlyBuiltDependencies": [
+      "@prisma/client",
+      "@prisma/engines",
+      "prisma"
+    ]
   }
 }
