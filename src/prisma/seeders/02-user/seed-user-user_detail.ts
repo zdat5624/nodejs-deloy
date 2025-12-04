@@ -92,7 +92,7 @@ export async function seedUsers() {
             role: 'CUSTOMER',
             detail: {
                 birthday: new Date('1999-01-01'),
-                sex: i % 2 === 0 ? 'Male' : 'Female',
+                sex: i % 2 === 0 ? 'male' : 'female',
                 avatar_url: `https://i.pravatar.cc/150?u=${i}`,
                 address: `Số ${i} Đường Demo, TP.HCM`,
             },

@@ -59,18 +59,18 @@ export class UserController {
   //   return user;
   // }
 
-  @Patch('update/:id')
-  @UseInterceptors(
-    FileInterceptor('avatar', {
-      storage: memoryStorage(),
-      fileFilter: (req, file, cb) => {
-        if (!file.mimetype.startsWith('image/'))
-          cb(new Error('only img'), false);
-        else cb(null, true);
-      },
-      limits: { fileSize: 1024 * 1024 * 2 },
-    }),
-  )
+  // @Patch('update/:id')
+  // @UseInterceptors(
+  //   FileInterceptor('avatar', {
+  //     storage: memoryStorage(),
+  //     fileFilter: (req, file, cb) => {
+  //       if (!file.mimetype.startsWith('image/'))
+  //         cb(new Error('only img'), false);
+  //       else cb(null, true);
+  //     },
+  //     limits: { fileSize: 1024 * 1024 * 2 },
+  //   }),
+  // )
   // async updateInfo(
   //   @Param('id', ParseIntPipe) id: number,
   //   @UploadedFile() avatar: Express.Multer.File,
@@ -88,15 +88,12 @@ export class UserController {
 
 
   @Delete('lock/:id')
-  // @UseGuards(AuthGuard('jwt'), RolesGuard)
-  // @Role('owner', 'manager')
   async lockUser(@Param('id', ParseIntPipe) id: number) {
+    console.log(">>> lock", id)
     return await this.userService.lockUser(id);
   }
 
   @Patch('unlock/:id')
-  // @UseGuards(AuthGuard('jwt'), RolesGuard)
-  // @Role('owner', 'manager')
   async unlockUser(@Param('id', ParseIntPipe) id: number) {
     return await this.userService.unlockUser(id);
   }
