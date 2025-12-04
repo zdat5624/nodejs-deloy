@@ -34,10 +34,6 @@ export class MaterialRemainService {
       const lastRemain = await this.prisma.materialRemain.findFirst({
         where: {
           materialId: materialId,
-          date: {
-            gte: lastDateStart, // Lớn hơn hoặc bằng 00:00:00 ngày hôm trước
-            lt: lastDateEnd     // Nhỏ hơn 00:00:00 ngày hiện tại (hay 1 ngày sau)
-          }
         },
         orderBy: { date: 'desc' } // Đảm bảo lấy bản ghi mới nhất trong ngày
       });
