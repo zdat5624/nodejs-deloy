@@ -190,14 +190,15 @@ export class AuthService {
 
         return { message: 'If the email is registered, a password reset link has been sent.' };
     }
+
     async resetPassword(dto: authForgetPasswordDto) {
         if (!dto.otp || !dto.newPassword) {
             throw new ForbiddenException("OTP and new password are required");
         }
-        const verify = await this.redisService.validateOTP(dto.email, dto.otp);
-        if (!verify) {
-            throw new ForbiddenException("Invalid or expired OTP");
-        }
+        // const verify = await this.redisService.validateOTP(dto.email, dto.otp);
+        // if (!verify) {
+        //     throw new ForbiddenException("Invalid or expired OTP");
+        // }
         const { hash, ...update } = await this.prisma.user.update({
             where: {
                 email: dto.email,
@@ -208,6 +209,7 @@ export class AuthService {
         })
         return update;
     }
+
     editRole(dto: authAssignRoleDto, assign: Boolean) {
         const userUpdated = assign
             // assign role 
