@@ -50,6 +50,9 @@ export class OrderController {
   findOne(@Param('id') id: string) {
     return this.orderService.findOne(Number(id));
   }
+
+  @Get('user')
+  @UseGuards(AuthGuard('jwt'))
   @Patch('status')
   updateStatus(@Body() dto: UpdateOrderStatusDTO, @GetUser() user: client.User) {
     return this.orderService.updateStatus(dto, undefined, user.id);
