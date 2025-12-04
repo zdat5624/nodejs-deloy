@@ -19,7 +19,7 @@ export class MaterialRemainController {
   }
   @Get('system-record')
   getSystemTracking(@Query('date', ParseDatePipe) date: Date) {
-    return this.materialRemainService.getRemainCheckBySystem(date);
+    return this.materialRemainService.getRemainCheckBySystem();
   }
 
   @Get(':id')

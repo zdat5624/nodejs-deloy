@@ -8,124 +8,193 @@ import { error } from 'console';
 export class MaterialRemainService {
   constructor(private readonly prisma: PrismaService) { }
 
-  async getRemainCheckBySystem(date: Date) {
+  // async getRemainCheckBySystem(date: Date) {
 
-    date.setUTCHours(0, 0, 0, 0);
-    // Ngày tiếp theo: Dùng làm mốc kết thúc (nhỏ hơn < nextDate)
-    const nextDate = new Date(date);
-    nextDate.setUTCDate(nextDate.getUTCDate() + 1);
+  //   date.setUTCHours(0, 0, 0, 0);
+  //   // Ngày tiếp theo: Dùng làm mốc kết thúc (nhỏ hơn < nextDate)
+  //   const nextDate = new Date(date);
+  //   nextDate.setUTCDate(nextDate.getUTCDate() + 1);
 
-    // Ngày hôm trước: Dùng làm mốc bắt đầu của kỳ trước (>= lastDate)
-    const lastDateStart = new Date(date);
-    lastDateStart.setUTCDate(lastDateStart.getUTCDate() - 1);
+  //   // Ngày hôm trước: Dùng làm mốc bắt đầu của kỳ trước (>= lastDate)
+  //   const lastDateStart = new Date(date);
+  //   lastDateStart.setUTCDate(lastDateStart.getUTCDate() - 1);
 
-    // Ngày hôm sau của ngày hôm trước (Date End của kỳ trước)
-    const lastDateEnd = new Date(lastDateStart);
-    lastDateEnd.setUTCDate(lastDateEnd.getUTCDate() + 1);
+  //   // Ngày hôm sau của ngày hôm trước (Date End của kỳ trước)
+  //   const lastDateEnd = new Date(lastDateStart);
+  //   lastDateEnd.setUTCDate(lastDateEnd.getUTCDate() + 1);
 
 
-    const materials = await this.prisma.material.findMany({ include: { Unit: true }, });
-    let res: { record: number; materialId: number, materialName: string, materialUnit: string, lastRemainQuantity: number }[] = []
+  //   const materials = await this.prisma.material.findMany({ include: { Unit: true }, });
+  //   let res: { record: number; materialId: number, materialName: string, materialUnit: string, lastRemainQuantity: number }[] = []
 
-    for (const materialRemain of materials) {
-      const materialId = materialRemain.id;
+  //   for (const materialRemain of materials) {
+  //     const materialId = materialRemain.id;
 
-      // TÌM KHO CUỐI KỲ TRƯỚC: Phải nằm trong phạm vi của ngày hôm trước
+  //     // TÌM KHO CUỐI KỲ TRƯỚC: Phải nằm trong phạm vi của ngày hôm trước
+  //     const lastRemain = await this.prisma.materialRemain.findFirst({
+  //       where: {
+  //         materialId: materialId,
+  //       },
+  //       orderBy: { date: 'desc' } // Đảm bảo lấy bản ghi mới nhất trong ngày
+  //     });
+
+  //     // TÌM NHẬP HÀNG: Phải nằm trong phạm vi của ngày hiện tại
+  //     const importMaterial = await this.prisma.materialImportation.findFirst({
+  //       where: {
+  //         materialId: materialId,
+  //         importDate: {
+  //           gte: date, // Lớn hơn hoặc bằng 00:00:00 ngày hiện tại
+  //           lt: nextDate                       // Nhỏ hơn 00:00:00 ngày tiếp theo
+  //         },
+  //         isRecorded: false
+  //       },
+  //       orderBy: { importDate: 'desc' } // Lấy bản ghi mới nhất nếu có nhiều lần nhập trong ngày
+  //     });
+
+  //     // TÍNH TỔNG TIÊU THỤ (Consume): Phải nằm trong phạm vi của ngày hiện tại
+  //     const totalConsume = await this.prisma.inventoryAdjustment
+  //       .findMany({
+  //         where: {
+  //           materialId: materialId,
+  //           adjustedAt: {
+  //             gte: date,
+  //             lt: nextDate
+  //           },
+  //           isRecorded: false,
+  //         }
+  //       })
+  //       .then(e => e.reduce((sum, i) => sum + i.consume, 0));
+
+  //     // TÍNH TỔNG HỎNG/THẢI (Loss): Phải nằm trong phạm vi của ngày hiện tại
+  //     const loss = await this.prisma.watseLog
+  //       .findMany({
+  //         where: {
+  //           materialId: materialId,
+  //           date: {
+  //             gte: date,
+  //             lt: nextDate
+  //           },
+  //           isRecorded: false
+  //         }
+  //       })
+  //       .then(e => e.reduce((sum, i) => sum + i.quantity, 0));
+
+  //     // Kiểm tra logic và tính toán
+  //     if (!lastRemain || !importMaterial) {
+  //       // Cần điều chỉnh logic kiểm tra: nếu không có tồn kho cuối kỳ trước, coi là 0.
+  //       // Nếu không có nhập hàng, coi là 0.
+  //       const lastRemainQuantity = lastRemain ? lastRemain.remain : 0;
+  //       const importQuantity = importMaterial ? importMaterial.importQuantity : 0;
+
+  //       // Nếu bạn muốn giữ lại lỗi khi không tìm thấy TỒN KHO HOẶC NHẬP HÀNG:
+  //       // throw new BadRequestException(`Can not find last remain or importation for material ${materialId}`); 
+
+  //       // Nếu cho phép tồn kho/nhập hàng = 0, bạn dùng logic sau:
+  //       const systemrecord = {
+
+  //         record: lastRemainQuantity + importQuantity - (totalConsume + loss),
+  //         materialId: materialId
+  //       }
+  //       // res.push(systemrecord)
+
+  //       res.push({
+  //         record: lastRemainQuantity + importQuantity - (totalConsume + loss),
+  //         materialId: materialId,
+  //         materialName: materialRemain.name,
+  //         materialUnit: materialRemain.Unit?.symbol || materialRemain.Unit?.name || '',
+  //         lastRemainQuantity: lastRemainQuantity,
+  //       });
+
+  //     } else {
+  //       const systemrecord = {
+  //         record: lastRemain.remain + importMaterial.importQuantity - (totalConsume + loss),
+  //         materialId: materialId
+  //       }
+  //       // res.push(systemrecord)
+
+  //       res.push({
+  //         record: lastRemain.remain + importMaterial.importQuantity - (totalConsume + loss),
+  //         materialId: materialId,
+  //         materialName: materialRemain.name,
+  //         materialUnit: materialRemain.Unit?.symbol || materialRemain.Unit?.name || '',
+  //         lastRemainQuantity: lastRemain.remain,
+  //       });
+  //     }
+  //   }
+
+  //   return res;
+  // }
+
+  async getRemainCheckBySystem() {
+    // Lấy danh sách nguyên liệu
+    const materials = await this.prisma.material.findMany({
+      include: { Unit: true },
+    });
+
+    const res: {
+      record: number;
+      materialId: number;
+      materialName: string;
+      materialUnit: string;
+      lastRemainQuantity: number;
+    }[] = [];
+
+    for (const material of materials) {
+      const materialId = material.id;
+
+      // 1. LẤY MỐC TỒN KHO GẦN NHẤT (Không quan tâm ngày, chỉ lấy bản ghi mới nhất)
       const lastRemain = await this.prisma.materialRemain.findFirst({
+        where: { materialId: materialId },
+        orderBy: { date: 'desc' },
+      });
+      const lastRemainQty = lastRemain ? lastRemain.remain : 0;
+
+      // 2. TÍNH TỔNG NHẬP (Chỉ lấy những phiếu chưa được recorded)
+      // Lưu ý: Dùng aggregate để cộng dồn nếu có nhiều lần nhập chưa chốt
+      const totalImport = await this.prisma.materialImportation.aggregate({
+        _sum: { importQuantity: true },
         where: {
           materialId: materialId,
+          isRecorded: false, // Quan trọng: Chỉ lấy chưa chốt
         },
-        orderBy: { date: 'desc' } // Đảm bảo lấy bản ghi mới nhất trong ngày
       });
+      const importQty = totalImport._sum.importQuantity || 0;
 
-      // TÌM NHẬP HÀNG: Phải nằm trong phạm vi của ngày hiện tại
-      const importMaterial = await this.prisma.materialImportation.findFirst({
+      // 3. TÍNH TỔNG TIÊU THỤ (Consume - chưa chốt)
+      const totalConsume = await this.prisma.inventoryAdjustment.aggregate({
+        _sum: { consume: true },
         where: {
           materialId: materialId,
-          importDate: {
-            gte: date, // Lớn hơn hoặc bằng 00:00:00 ngày hiện tại
-            lt: nextDate                       // Nhỏ hơn 00:00:00 ngày tiếp theo
-          },
-          isRecorded: false
+          isRecorded: false,
         },
-        orderBy: { importDate: 'desc' } // Lấy bản ghi mới nhất nếu có nhiều lần nhập trong ngày
       });
+      const consumeQty = totalConsume._sum.consume || 0;
 
-      // TÍNH TỔNG TIÊU THỤ (Consume): Phải nằm trong phạm vi của ngày hiện tại
-      const totalConsume = await this.prisma.inventoryAdjustment
-        .findMany({
-          where: {
-            materialId: materialId,
-            adjustedAt: {
-              gte: date,
-              lt: nextDate
-            },
-            isRecorded: false,
-          }
-        })
-        .then(e => e.reduce((sum, i) => sum + i.consume, 0));
-
-      // TÍNH TỔNG HỎNG/THẢI (Loss): Phải nằm trong phạm vi của ngày hiện tại
-      const loss = await this.prisma.watseLog
-        .findMany({
-          where: {
-            materialId: materialId,
-            date: {
-              gte: date,
-              lt: nextDate
-            },
-            isRecorded: false
-          }
-        })
-        .then(e => e.reduce((sum, i) => sum + i.quantity, 0));
-
-      // Kiểm tra logic và tính toán
-      if (!lastRemain || !importMaterial) {
-        // Cần điều chỉnh logic kiểm tra: nếu không có tồn kho cuối kỳ trước, coi là 0.
-        // Nếu không có nhập hàng, coi là 0.
-        const lastRemainQuantity = lastRemain ? lastRemain.remain : 0;
-        const importQuantity = importMaterial ? importMaterial.importQuantity : 0;
-
-        // Nếu bạn muốn giữ lại lỗi khi không tìm thấy TỒN KHO HOẶC NHẬP HÀNG:
-        // throw new BadRequestException(`Can not find last remain or importation for material ${materialId}`); 
-
-        // Nếu cho phép tồn kho/nhập hàng = 0, bạn dùng logic sau:
-        const systemrecord = {
-
-          record: lastRemainQuantity + importQuantity - (totalConsume + loss),
-          materialId: materialId
-        }
-        // res.push(systemrecord)
-
-        res.push({
-          record: lastRemainQuantity + importQuantity - (totalConsume + loss),
+      // 4. TÍNH TỔNG HỎNG/THẢI (Loss - chưa chốt)
+      const totalLoss = await this.prisma.watseLog.aggregate({
+        _sum: { quantity: true },
+        where: {
           materialId: materialId,
-          materialName: materialRemain.name,
-          materialUnit: materialRemain.Unit?.symbol || materialRemain.Unit?.name || '',
-          lastRemainQuantity: lastRemainQuantity,
-        });
+          isRecorded: false,
+        },
+      });
+      const lossQty = totalLoss._sum.quantity || 0;
 
-      } else {
-        const systemrecord = {
-          record: lastRemain.remain + importMaterial.importQuantity - (totalConsume + loss),
-          materialId: materialId
-        }
-        // res.push(systemrecord)
+      // 5. TÍNH TOÁN FINAL
+      // Công thức: Tồn đầu + Nhập - Tiêu hao - Mất mát
+      const currentSystemRecord = lastRemainQty + importQty - (consumeQty + lossQty);
 
-        res.push({
-          record: lastRemain.remain + importMaterial.importQuantity - (totalConsume + loss),
-          materialId: materialId,
-          materialName: materialRemain.name,
-          materialUnit: materialRemain.Unit?.symbol || materialRemain.Unit?.name || '',
-          lastRemainQuantity: lastRemain.remain,
-        });
-      }
+      res.push({
+        record: currentSystemRecord,
+        materialId: materialId,
+        materialName: material.name,
+        materialUnit: material.Unit?.symbol || material.Unit?.name || '',
+        lastRemainQuantity: lastRemainQty,
+      });
     }
 
     return res;
   }
-
-
 
   async create(createMaterialRemainDto: CreateMaterialRemainDto) {
 
